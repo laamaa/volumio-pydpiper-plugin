@@ -18,6 +18,9 @@ import pydPiper_config
 
 
 exitapp = [ False ]
+lcdbacklightoff = [ True ]
+stoppedtime = 0
+lcd_timeout = 60
 
 class music_controller(threading.Thread):
 	# Receives updates from music services
@@ -201,6 +204,7 @@ class music_controller(threading.Thread):
 				if u'elapsed' in updates:
 					self.musicdata[u'elapsed'] = self.musicdata[u'current'] = updates[u'elapsed']
 					timesongstarted = time.time() - self.musicdata[u'elapsed']
+
 
 				if self.musicdata[u'state'] == u'play':
 					if u'elapsed' not in updates:
@@ -491,6 +495,9 @@ class music_controller(threading.Thread):
 def sigterm_handler(_signo, _stack_frame):
         sys.exit(0)
 
+def time_elapsed(oldepoch, duration):
+    return time.time() - oldepoch >= duration
+
 if __name__ == u'__main__':
 	import math
 	signal.signal(signal.SIGTERM, sigterm_handler)
@@ -672,9 +679,18 @@ if __name__ == u'__main__':
 		while True:
 			# Get next image and send it to the display every .1 seconds
 			with mc.musicdata_lock:
-				img = dc.next()
-#			displays.graphics.update(img)
-			lcd.update(img)
+				if mc.musicdata[u'state'] == u'stop' and lcd.LCD_BACKLIGHT != 0x00:
+					if stoppedtime == 0: #We've just stopped the player, set the stop time to current time
+						stoppedtime=time.time()					
+					if time_elapsed(stoppedtime, lcd_timeout) == True:			
+						lcd.LCD_BACKLIGHT=0x00
+						lcd.clear()
+				if mc.musicdata[u'state'] != u'stop' and lcd.LCD_BACKLIGHT == 0x00:
+					lcd.LCD_BACKLIGHT = 0x08 #0x08 is backlight on
+					stoppedtime = 0
+				if stoppedtime == 0 or time_elapsed(stoppedtime, lcd_timeout) == False:
+					img = dc.next()
+					lcd.update(img)
 			time.sleep(pydPiper_config.ANIMATION_SMOOTHING)
 
 
