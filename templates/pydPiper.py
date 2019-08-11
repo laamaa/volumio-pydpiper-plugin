@@ -675,24 +675,24 @@ if __name__ == u'__main__':
 	mc.start()
 	dc.load(pagefile, mc.musicdata,mc.musicdata_prev )
 
-	try:
-		while True:
-			# Get next image and send it to the display every .1 seconds
-			with mc.musicdata_lock:
-				if mc.musicdata[u'state'] == u'stop' and lcd.LCD_BACKLIGHT != 0x00:
-					if stoppedtime == 0: #We've just stopped the player, set the stop time to current time
-						stoppedtime=time.time()					
-					if time_elapsed(stoppedtime, lcd_timeout) == True:			
-						lcd.LCD_BACKLIGHT=0x00
-						lcd.clear()
-				if mc.musicdata[u'state'] != u'stop' and lcd.LCD_BACKLIGHT == 0x00:
-					lcd.LCD_BACKLIGHT = 0x08 #0x08 is backlight on
-					stoppedtime = 0
-				if stoppedtime == 0 or time_elapsed(stoppedtime, lcd_timeout) == False:
-					img = dc.next()
-					lcd.update(img)
-			time.sleep(pydPiper_config.ANIMATION_SMOOTHING)
-
+    try:
+        while True:
+            # Get next image and send it to the display every .1 seconds
+                with mc.musicdata_lock:
+                    if mc.musicdata[u'state'] == u'stop' and lcd.LCD_BACKLIGHT != 0x00:
+                        if stoppedtime == 0: #We've just stopped the player, set the stop time to current time
+                            stoppedtime=time.time()
+                        if time_elapsed(stoppedtime, lcd_timeout) == True:
+                            lcd.LCD_BACKLIGHT=0x00
+                            lcd.clear()
+                    if mc.musicdata[u'state'] != u'stop':
+                        if lcd.LCD_BACKLIGHT == 0x00:
+                            lcd.LCD_BACKLIGHT = 0x08 #0x08 is backlight on
+                        stoppedtime = 0
+                    if stoppedtime == 0 or time_elapsed(stoppedtime, lcd_timeout) == False:
+                        img = dc.next()
+                        lcd.update(img)
+                time.sleep(pydPiper_config.ANIMATION_SMOOTHING)
 
 	except KeyboardInterrupt:
 		pass
