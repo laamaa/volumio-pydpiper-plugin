@@ -403,7 +403,7 @@ ControllerPydPiper.prototype.updateUnitFile = function ()
 	var self = this;
 	var defer = libQ.defer();
 		
-	var template = "ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw";
+	var template = "ExecStart=/usr/bin/docker run --rm --network=host --privileged -v /var/log:/var/log:rw";
 	if(self.config.get('mount_point') == 'local')
 		template += " -v /home/volumio/pydPiper:/app:ro dhrone/pydpiper:latest python /app/pydPiper.py --volumio";
 	else
@@ -416,10 +416,10 @@ ControllerPydPiper.prototype.updateUnitFile = function ()
 	else
 		template +=  " --i2caddress " + self.config.get('i2caddress') + " --i2cport " + self.config.get('i2cport');
 	
-	template += " --timezone \'" + self.config.get('timezone') + "\'";
+	template += " --timezone '\\''" + self.config.get('timezone') + "'\\''";
 	
 	if(self.config.get('use_weather'))
-		template += " --wapi " + self.config.get('wapi') + " --wlocale '" + self.config.get('wlocale') + "' --temperature " + self.config.get('units');
+		template += " --wapi " + self.config.get('wapi') + " --wlocale '\\''" + self.config.get('wlocale') + "'\\'' --temperature " + self.config.get('units');
 	
 	template += " --pages " + self.config.get('pages_file');
 	
